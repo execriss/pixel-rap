@@ -1,0 +1,218 @@
+@import url("https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Teko:wght@500;700&display=swap");
+
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: "Teko", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-image: url("https://i.imgur.com/JZ3MBIS.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-blend-mode: overlay;
+  min-height: 100vh;
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+h3 {
+  font-family: "Permanent Marker", cursive;
+  font-size: 3.5rem;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+  letter-spacing: 2px;
+  transform: skew(-5deg);
+  padding: 20px 0;
+}
+
+#unity-container {
+  position: relative !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+  margin: 0 auto;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 3px solid #333;
+}
+
+#unity-container.unity-desktop {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: 960px;
+  margin: 0 auto;
+}
+
+#unity-canvas {
+  background: #000000 !important;
+  border-radius: 8px;
+}
+
+#unity-loading-bar {
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+#unity-logo {
+  filter: drop-shadow(0 0 10px red);
+}
+
+#unity-progress-bar-empty {
+  background: #333 !important;
+  height: 20px !important;
+  border-radius: 10px;
+  width: 300px !important;
+  margin: 15px auto !important;
+}
+
+#unity-progress-bar-full {
+  background: linear-gradient(90deg, #ff0000, #ff6600) !important;
+  height: 20px !important;
+  border-radius: 10px;
+  margin: 15px auto !important;
+}
+
+#unity-footer {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#unity-build-title {
+  font-family: "Permanent Marker", cursive;
+  font-size: 1.5rem !important;
+  color: #ffffff;
+  text-shadow: 0 0 5px #ff0000;
+}
+
+#unity-fullscreen-button {
+  background-color: #ff0000 !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+
+#unity-fullscreen-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+#unity-warning {
+  background-color: #ff0000 !important;
+  color: white;
+  border-radius: 8px;
+  font-family: "Teko", sans-serif;
+  font-size: 1.2rem;
+}
+
+/* Elementos decorativos de rap */
+.rap-elements {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.rap-element {
+  position: absolute;
+  opacity: 0.15;
+}
+
+.microphone {
+  top: 5%;
+  left: 5%;
+  width: 150px;
+  height: 150px;
+  background-image: url("https://i.imgur.com/nD1Vvca.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.speaker {
+  bottom: 5%;
+  right: 5%;
+  width: 180px;
+  height: 180px;
+  background-image: url("https://i.imgur.com/6XoL3KP.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.vinyl {
+  top: 10%;
+  right: 10%;
+  width: 200px;
+  height: 200px;
+  background-image: url("https://i.imgur.com/e8SZ1NJ.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: spin 20s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animación de pulso para el título */
+@keyframes pulse {
+  0% {
+    text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+  }
+  50% {
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+  }
+  100% {
+    text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+  }
+}
+
+h3 {
+  animation: pulse 2s infinite;
+}
+
+.game-description {
+  text-align: center;
+  margin: 20px auto;
+  max-width: 800px;
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+/* Media queries para responsive */
+@media (max-width: 1000px) {
+  #unity-container.unity-desktop {
+    width: 90%;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+}

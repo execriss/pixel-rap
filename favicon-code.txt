@@ -1,0 +1,7 @@
+Para crear un favicon personalizado, puedes usar esta imagen de micrófono estilo rap:
+https://i.imgur.com/smQw5Jr.png
+
+Simplemente descarga esta imagen, conviértela a formato .ico usando un convertidor online como https://www.favicon-generator.org/ y reemplaza el archivo favicon.ico en la carpeta TemplateData.
+
+Alternativamente, puedes usar esta URL directa para una imagen de micrófono ya en formato .ico:
+https://i.imgur.com/smQw5Jr.ico 
