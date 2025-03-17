@@ -8,6 +8,7 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico" />
     <link rel="stylesheet" href="TemplateData/style.css" />
     <link rel="stylesheet" href="rap-style.css" />
+    <script src="mouse-fix.js"></script>
   </head>
   <body>
     <div class="page-container">
@@ -70,15 +71,9 @@
           startUnity();
         }
 
-        // Activar el bloqueo del puntero (esto es necesario por restricciones del navegador)
+        // Asegurarnos de que el canvas tenga el foco
         setTimeout(function () {
-          if (canvas.requestPointerLock) {
-            canvas.requestPointerLock();
-          } else if (canvas.mozRequestPointerLock) {
-            canvas.mozRequestPointerLock();
-          } else if (canvas.webkitRequestPointerLock) {
-            canvas.webkitRequestPointerLock();
-          }
+          canvas.focus();
         }, 100);
       });
 
@@ -108,7 +103,6 @@
         var buildUrl = "Build";
         var loaderUrl = buildUrl + "/DemoWebgl.loader.js";
         var config = {
-          arguments: [],
           dataUrl: buildUrl + "/DemoWebgl.data",
           frameworkUrl: buildUrl + "/DemoWebgl.framework.js",
           codeUrl: buildUrl + "/DemoWebgl.wasm",
@@ -117,6 +111,8 @@
           productName: "Pixel Rap",
           productVersion: "1.0",
           showBanner: unityShowBanner,
+          // Aseguramos una configuración óptima para el ratón
+          devicePixelRatio: window.devicePixelRatio || 1,
         };
 
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -150,16 +146,19 @@
                   unityInstance.SetFullscreen(1);
                 };
 
-              // Activar el bloqueo del puntero cuando se hace clic en el juego
-              canvas.addEventListener("click", function () {
-                if (canvas.requestPointerLock) {
-                  canvas.requestPointerLock();
-                } else if (canvas.mozRequestPointerLock) {
-                  canvas.mozRequestPointerLock();
-                } else if (canvas.webkitRequestPointerLock) {
-                  canvas.webkitRequestPointerLock();
-                }
-              });
+              // Asegurar que los eventos del mouse se pasen correctamente
+              setupMouseHandling();
+
+              // Compartir la instancia con nuestro script de mouse fix
+              window.unityInstance = instance;
+
+              // Si nuestro fix está disponible, notificar que la instancia está lista
+              if (
+                window.mouseUtilityFix &&
+                window.mouseUtilityFix.reinitialize
+              ) {
+                window.mouseUtilityFix.reinitialize();
+              }
             })
             .catch((message) => {
               alert(message);
@@ -169,42 +168,51 @@
         document.body.appendChild(script);
       }
 
-      // Gestionar el bloqueo del puntero
-      document.addEventListener("pointerlockchange", lockChangeAlert, false);
-      document.addEventListener("mozpointerlockchange", lockChangeAlert, false);
-      document.addEventListener(
-        "webkitpointerlockchange",
-        lockChangeAlert,
-        false
-      );
+      function setupMouseHandling() {
+        // Asegurarnos de que el canvas tenga focus cuando se hace clic en él
+        canvas.addEventListener("click", function (e) {
+          // Dar foco al canvas
+          canvas.focus();
 
-      function lockChangeAlert() {
-        if (
-          document.pointerLockElement === canvas ||
-          document.mozPointerLockElement === canvas ||
-          document.webkitPointerLockElement === canvas
-        ) {
-          console.log("Bloqueo del puntero activado para el juego.");
-        } else {
-          console.log("Bloqueo del puntero desactivado.");
-          // Si el juego ya está iniciado y el usuario sale del modo de bloqueo
-          if (isGameStarted) {
-            // Mostrar un mensaje sutil para volver a hacer clic
-            var reactivateMsg = document.createElement("div");
-            reactivateMsg.className = "reactivate-message";
-            reactivateMsg.innerHTML = "Haz clic para reactivar los controles";
-            document
-              .querySelector("#unity-container")
-              .appendChild(reactivateMsg);
+          // Prevenir comportamiento predeterminado en GitHub Pages que pueda interferir
+          e.preventDefault();
 
-            // Quitar el mensaje cuando se vuelva a hacer clic
-            setTimeout(function () {
-              if (document.querySelector(".reactivate-message")) {
-                document.querySelector(".reactivate-message").remove();
-              }
-            }, 3000);
-          }
+          // Evitar propagación de eventos
+          e.stopPropagation();
+        });
+
+        // Transmitir coordenadas exactas del mouse al juego
+        canvas.addEventListener("mousemove", function (e) {
+          // No hacer nada especial, dejar que Unity lo maneje
+          // Este listener es solo para asegurarnos de que el evento llegue al juego
+        });
+
+        // Asegurar que los clics del mouse se registren correctamente
+        canvas.addEventListener("mousedown", function (e) {
+          // Asegurar que el canvas tenga el focus
+          canvas.focus();
+          // Evitar comportamientos predeterminados del navegador
+          e.preventDefault();
+        });
+
+        // Solución para Firefox que a veces bloquea eventos de mouse
+        if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
+          canvas.addEventListener("mouseout", function (e) {
+            // Reiniciar el estado del mouse cuando el cursor sale del canvas
+            // Esto evita problemas específicos de Firefox
+          });
         }
+
+        // Fix para pantalla completa
+        document.addEventListener("fullscreenchange", function () {
+          // Dar tiempo al navegador para ajustarse al cambio de pantalla completa
+          setTimeout(function () {
+            // Forzar un redimensionamiento para que Unity actualice su canvas
+            window.dispatchEvent(new Event("resize"));
+            // Asegurar que el canvas mantenga el foco
+            canvas.focus();
+          }, 100);
+        });
       }
     </script>
   </body>
