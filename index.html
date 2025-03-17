@@ -20,14 +20,14 @@
         Pixel Rap te trae lo mejor del hip-hop en formato pixel.
       </div> -->
 
-      <div class="instructions">
-        <p>
-          Para poder disparar con el mouse, <strong>haz clic una vez</strong> en
-          el juego para activar los controles.
-        </p>
+      <div id="click-to-play" class="click-to-play">
+        <div class="play-button">
+          <span>JUGAR</span>
+        </div>
+        <p>¡Haz clic para comenzar a jugar!</p>
       </div>
 
-      <div id="unity-container" class="unity-desktop">
+      <div id="unity-container" class="unity-desktop" style="display: none">
         <canvas
           id="unity-canvas"
           width="960"
@@ -51,13 +51,37 @@
 
     <script>
       var canvas = document.querySelector("#unity-canvas");
+      var unityInstance = null;
+      var clickToPlay = document.getElementById("click-to-play");
+      var unityContainer = document.getElementById("unity-container");
+      var isGameStarted = false;
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
+      // Iniciar el juego cuando el usuario haga clic
+      clickToPlay.addEventListener("click", function () {
+        // Ocultar la pantalla de inicio
+        clickToPlay.style.display = "none";
+
+        // Mostrar el contenedor del juego
+        unityContainer.style.display = "block";
+
+        // Iniciar la carga si aún no se ha iniciado
+        if (!isGameStarted) {
+          isGameStarted = true;
+          startUnity();
+        }
+
+        // Activar el bloqueo del puntero (esto es necesario por restricciones del navegador)
+        setTimeout(function () {
+          if (canvas.requestPointerLock) {
+            canvas.requestPointerLock();
+          } else if (canvas.mozRequestPointerLock) {
+            canvas.mozRequestPointerLock();
+          } else if (canvas.webkitRequestPointerLock) {
+            canvas.webkitRequestPointerLock();
+          }
+        }, 100);
+      });
+
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");
         function updateBannerVisibility() {
@@ -80,79 +104,72 @@
         updateBannerVisibility();
       }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/DemoWebgl.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/DemoWebgl.data",
-        frameworkUrl: buildUrl + "/DemoWebgl.framework.js",
-        codeUrl: buildUrl + "/DemoWebgl.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Pixel Rap",
-        productVersion: "1.0",
-        showBanner: unityShowBanner,
-      };
+      function startUnity() {
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/DemoWebgl.loader.js";
+        var config = {
+          arguments: [],
+          dataUrl: buildUrl + "/DemoWebgl.data",
+          frameworkUrl: buildUrl + "/DemoWebgl.framework.js",
+          codeUrl: buildUrl + "/DemoWebgl.wasm",
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "DefaultCompany",
+          productName: "Pixel Rap",
+          productVersion: "1.0",
+          showBanner: unityShowBanner,
+        };
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          var meta = document.createElement("meta");
+          meta.name = "viewport";
+          meta.content =
+            "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+          document.getElementsByTagName("head")[0].appendChild(meta);
+          document.querySelector("#unity-container").className = "unity-mobile";
+          canvas.className = "unity-mobile";
+        } else {
+          canvas.style.width = "960px";
+          canvas.style.height = "600px";
+        }
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+        document.querySelector("#unity-loading-bar").style.display = "block";
 
-        var meta = document.createElement("meta");
-        meta.name = "viewport";
-        meta.content =
-          "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
-        document.getElementsByTagName("head")[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {
+            document.querySelector("#unity-progress-bar-full").style.width =
+              100 * progress + "%";
+          })
+            .then((instance) => {
+              unityInstance = instance;
+              document.querySelector("#unity-loading-bar").style.display =
+                "none";
+              document.querySelector("#unity-fullscreen-button").onclick =
+                () => {
+                  unityInstance.SetFullscreen(1);
+                };
 
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+              // Activar el bloqueo del puntero cuando se hace clic en el juego
+              canvas.addEventListener("click", function () {
+                if (canvas.requestPointerLock) {
+                  canvas.requestPointerLock();
+                } else if (canvas.mozRequestPointerLock) {
+                  canvas.mozRequestPointerLock();
+                } else if (canvas.webkitRequestPointerLock) {
+                  canvas.webkitRequestPointerLock();
+                }
+              });
+            })
+            .catch((message) => {
+              alert(message);
+            });
+        };
+
+        document.body.appendChild(script);
       }
 
-      document.querySelector("#unity-loading-bar").style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width =
-            100 * progress + "%";
-        })
-          .then((unityInstance) => {
-            document.querySelector("#unity-loading-bar").style.display = "none";
-            document.querySelector("#unity-fullscreen-button").onclick = () => {
-              unityInstance.SetFullscreen(1);
-            };
-
-            // Ayuda para activar el bloqueo del puntero
-            canvas.addEventListener("click", function () {
-              canvas.requestPointerLock =
-                canvas.requestPointerLock ||
-                canvas.mozRequestPointerLock ||
-                canvas.webkitRequestPointerLock;
-              canvas.requestPointerLock();
-            });
-          })
-          .catch((message) => {
-            alert(message);
-          });
-      };
-
-      document.body.appendChild(script);
-
-      // Gestionar salida del bloqueo del puntero
+      // Gestionar el bloqueo del puntero
       document.addEventListener("pointerlockchange", lockChangeAlert, false);
       document.addEventListener("mozpointerlockchange", lockChangeAlert, false);
       document.addEventListener(
@@ -168,10 +185,25 @@
           document.webkitPointerLockElement === canvas
         ) {
           console.log("Bloqueo del puntero activado para el juego.");
-          document.querySelector(".instructions").style.display = "none";
         } else {
           console.log("Bloqueo del puntero desactivado.");
-          document.querySelector(".instructions").style.display = "block";
+          // Si el juego ya está iniciado y el usuario sale del modo de bloqueo
+          if (isGameStarted) {
+            // Mostrar un mensaje sutil para volver a hacer clic
+            var reactivateMsg = document.createElement("div");
+            reactivateMsg.className = "reactivate-message";
+            reactivateMsg.innerHTML = "Haz clic para reactivar los controles";
+            document
+              .querySelector("#unity-container")
+              .appendChild(reactivateMsg);
+
+            // Quitar el mensaje cuando se vuelva a hacer clic
+            setTimeout(function () {
+              if (document.querySelector(".reactivate-message")) {
+                document.querySelector(".reactivate-message").remove();
+              }
+            }, 3000);
+          }
         }
       }
     </script>
