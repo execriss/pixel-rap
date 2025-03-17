@@ -20,6 +20,13 @@
         Pixel Rap te trae lo mejor del hip-hop en formato pixel.
       </div> -->
 
+      <div class="instructions">
+        <p>
+          Para poder disparar con el mouse, <strong>haz clic una vez</strong> en
+          el juego para activar los controles.
+        </p>
+      </div>
+
       <div id="unity-container" class="unity-desktop">
         <canvas
           id="unity-canvas"
@@ -128,6 +135,15 @@
             document.querySelector("#unity-fullscreen-button").onclick = () => {
               unityInstance.SetFullscreen(1);
             };
+
+            // Ayuda para activar el bloqueo del puntero
+            canvas.addEventListener("click", function () {
+              canvas.requestPointerLock =
+                canvas.requestPointerLock ||
+                canvas.mozRequestPointerLock ||
+                canvas.webkitRequestPointerLock;
+              canvas.requestPointerLock();
+            });
           })
           .catch((message) => {
             alert(message);
@@ -135,6 +151,29 @@
       };
 
       document.body.appendChild(script);
+
+      // Gestionar salida del bloqueo del puntero
+      document.addEventListener("pointerlockchange", lockChangeAlert, false);
+      document.addEventListener("mozpointerlockchange", lockChangeAlert, false);
+      document.addEventListener(
+        "webkitpointerlockchange",
+        lockChangeAlert,
+        false
+      );
+
+      function lockChangeAlert() {
+        if (
+          document.pointerLockElement === canvas ||
+          document.mozPointerLockElement === canvas ||
+          document.webkitPointerLockElement === canvas
+        ) {
+          console.log("Bloqueo del puntero activado para el juego.");
+          document.querySelector(".instructions").style.display = "none";
+        } else {
+          console.log("Bloqueo del puntero desactivado.");
+          document.querySelector(".instructions").style.display = "block";
+        }
+      }
     </script>
   </body>
 </html>

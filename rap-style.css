@@ -163,7 +163,7 @@ h3::before {
 
 .game-description {
   text-align: center;
-  margin: 20px auto 40px;
+  margin: 20px auto 20px;
   max-width: 800px;
   font-size: 1.5rem;
   line-height: 1.5;
@@ -176,6 +176,42 @@ h3::before {
   font-weight: bold;
   letter-spacing: 1px;
   animation: pulse 3s infinite;
+}
+
+.instructions {
+  text-align: center;
+  margin: 0 auto 30px;
+  max-width: 600px;
+  font-size: 1.3rem;
+  background-color: rgba(255, 165, 0, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
+  border: 2px dashed #ffcc00;
+  animation: attention 2s infinite;
+  position: relative;
+}
+
+.instructions p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.instructions strong {
+  color: #ffcc00;
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.7);
+}
+
+@keyframes attention {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Media queries para responsive */
